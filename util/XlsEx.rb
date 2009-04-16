@@ -9,7 +9,17 @@ require 'util/Xls.rb'
       # myData = xlFile.get2DArray('B1:D3','Sheet 1')
       # xlFile.close
       # doSomething(myData)
-      
+         $predecessor_hash={}
+    predecessor = ""
+    'A'.upto('ZZ') do |a|
+      $predecessor_hash[a] = predecessor
+      predecessor = a
+    end 
+
+    def pred(s)
+      return $predecessor_hash[s]
+    end 
+    
   class XLSEx < XLS
 #
 # explorer array in excel 
@@ -33,7 +43,6 @@ require 'util/Xls.rb'
        $result = explore2DArray(x,y,sheet)
        ah= convert2DArrayToArrayHash($result["values"],true)
 #       puts $result["values"][0]
-       
        return [ah,$result["values"][0]]
   end
   
@@ -67,7 +76,59 @@ require 'util/Xls.rb'
        return [hashArray,headerArray]
   end
   
-  def explore2DArray(x='A',y=1,sheet=nil)
+
+
+  
+def explore2DArray(x='A',y=1,sheet=nil,v_endstr="")  #start from 3
+#    p "explore2DArray started"+sheet
+    
+    if getWorksheet(sheet) == nil 
+      return nil
+    end
+    
+    test_range = "A1:BZ256"
+    $content=get2DArray(test_range,sheet);
+#    p $content
+    explorer_y = y-1
+    while  1    # explorer Y coordinate 
+      explorer_y += 1;
+ #     p $content[explorer_y-1][0]
+#      p explorer_y
+#      p "content[explorer_y-1]="+$content[explorer_y-1][0]
+      break if  $content[explorer_y-1] == nil  or  $content[explorer_y-1][0] == v_endstr or $content[explorer_y-1][0]==nil
+
+    end
+    explorer_y-=1
+    
+    explorer_x = x
+    
+    x_len = 1
+    last_x= explorer_x;
+    while  1    # explorer x coordinate 
+#      p $content[3][x_len-1]
+#      p explorer_x
+#      p last_x
+#      p x_len
+#      p  "from:"+(y-1).to_s+":"+last_x +":"
+#      p $content[y-1]
+      break if  $content[y-1] == nil  or $content[y-1][x_len-1] =="" or $content[y-1][x_len-1] ==nil
+      last_x= explorer_x;
+      explorer_x = explorer_x.succ;
+      x_len += 1;
+    end
+    explorer_x = last_x
+
+    real_range = x+(y.to_s) +":"+explorer_x+(explorer_y.to_s)  
+#    p real_range
+    h = {}
+    h["x"]=x_len-1
+    h["y"]=explorer_y - y +1
+    h["values"]=get2DArray(real_range,sheet)
+ #   p "------------------"  ; p h["x"]   ; p h["y"]   ; p h["values"]   ; p "\\n"
+    return h # [x_len,explorer_y - y +1, get2DArray(real_range,sheet)]
+end
+  
+  def old_explore2DArray(x='A',y=1,sheet=nil)
     explorer_y = y;
     if getWorksheet(sheet) == nil 
       return nil
