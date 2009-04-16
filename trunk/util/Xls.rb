@@ -129,7 +129,7 @@ require 'logger'
         if x.is_a?(Float) and x % 1 == 0
            x.to_i.to_s
          else
-          x.to_s.strip
+          x.to_s.strip  # need to_s.strip to get realword.
         end
       end
       data << record
